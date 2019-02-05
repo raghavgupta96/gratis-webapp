@@ -1,0 +1,14 @@
+.DashboardLayout {
+  /*Container*/
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+
+
+  /*Box Model*/
+  height: 100%;
+  width: 100%;
+  flex: 1 1 auto;
+  z-index: 0;
+}
