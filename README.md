@@ -5,11 +5,13 @@ React web application for Gratis.
 
 ## The DOs
 
-* Fork the "dev-master" branch. This is how developers can submit pull requests.
+* [Fork](https://help.github.com/articles/fork-a-repo/) this repository to submit pull requests.
+* Submit pull requests to the "dev-master" branch. The "master" branch is used for stable releases.
 
 ## The DONTs
 
 * Push directly to a branch. All merges must be done through pull requests.
+* Submit pull requests to the "master" branch. The "master" branch should only be updated by merging it with the "dev-master" branch.
 
 # Setup
 
