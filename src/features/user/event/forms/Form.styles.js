@@ -4,7 +4,12 @@ const styles = theme => ({
     flexFlow: 'column nowrap',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    height: '45vh'
+    height: '45vh',
+    minHeight: '500px',
+    minWidth: '250px',
+    maxWidth: '650px'
+  },
+  activeForm: {
   },
   eventTextField: {
     width: '90%',
@@ -12,16 +17,12 @@ const styles = theme => ({
   },
   eventDate: {
     display: 'flex',
-    flexFlow: 'row nowrap',
-    justifyContent: 'space-between',
-    width: '90%',
+    flexFlow: 'row wrap',
+    justifyContent: 'space-evenly',
     margin: '16px 0'
   },
-  datetimepicker: {
-    display: 'flex',
-    flexFlow: 'row nowrap',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+  datetimePicker: {
+    margin: '16px'
   },
   tags: {
   },

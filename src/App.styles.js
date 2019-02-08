@@ -7,10 +7,6 @@ const styles = theme => ({
     overflow: 'hidden',
     width: '100vw',
     height: '100vh',
-    margin: 0,
-    padding: 0,
-    fontFamily: 'Arial, sans-serif',
-    zIndex: -1
   },
   content: {
     display: 'flex',

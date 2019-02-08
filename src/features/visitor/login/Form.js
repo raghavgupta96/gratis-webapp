@@ -13,7 +13,7 @@ const form = (props) => {
     error,
     emailHandler,
     passwordHandler,
-    loginHandler
+    login
   } = props;
 
   const renderForm = () => (
@@ -47,7 +47,7 @@ const form = (props) => {
         className={classes.submitButton}
         variant="contained"
         color="primary"
-        onClick={loginHandler}
+        onClick={login}
       > Login
       </Button>
     </div>

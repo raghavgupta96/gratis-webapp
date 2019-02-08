@@ -8,112 +8,143 @@ import {
   NavLink,
   withRouter
 } from 'react-router-dom';
-import { withStyles} from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu'
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Menu from '@material-ui/core/Menu';
 import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import Drawer from '@material-ui/core/Drawer';
-import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import { auth, firestore } from '../../modules/firebase';
+import Avatar from '@material-ui/core/Avatar';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import { withStyles} from '@material-ui/core/styles';
+import MenuIcon from '@material-ui/icons/Menu';
+import SettingsIcon from '@material-ui/icons/Settings';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import { auth } from '../../modules/firebase';
 import { eventsActionTypes } from '../../modules/redux/reducers/events';
 import EventsLayout from './event/Layout';
 import AnalyticsLayout from './analytics/Layout';
 import ProfileLayout from './profile/Layout';
-import SettingsLayout from './settings/Layout';
-import logo from './Logo-h500px.png';
+import NavDrawer from './NavDrawer';
 import styles from './Layout.styles';
 import { userActionTypes } from '../../modules/redux/reducers/user';
-
-const routes = [
-  { name: 'Events', path: '/events' },
-  { name: 'Analytics', path: '/analytics' },
-  { name: 'Profile', path: '/profile' },
-  { name: 'Settings', path: '/settings' }
-  // { name: 'Analytics}, path: '/analytics' }
-];
+import logo from './Logo-h500px.png';
 
 class UserLayout extends Component {
   state = {
-    showDrawer: false
+    showDrawer: false,
+    anchorEl: null
   };
 
   handlers = {
+    handleChange: key => value => this.setState({ [key]: value }),
+    toggleDrawer: () => this.setState(state => ({ showDrawer: !state.showDrawer })),
     signOut: () => {
       auth.doSignOut()
         .then(() => {
           this.props.deleteUser();
-          this.props.deleteEvents();
+          this.props.setEvents({});
         });
     },
-    toggleDrawer: () => this.setState((state, props) => ({ showDrawer: !state.showDrawer }))
   }
 
-  componentDidMount() {
-    const {
-      user,
-      setEvents
-    } = this.props;
-
-    /*
-    firestore.getEventsOfUID(user.uid)
-      .onSnapshot((snapshot) => {
-        setEvents(snapshot.data())
-    });
-    */
+  componentWillUnmount() {
+    const { history } = this.props;
+    history.replace('/');
   }
 
-  renderDrawer() {
+  renderAppBar() {
     const { classes } = this.props;
+    const { anchorEl } = this.state;
     const {
-      signOut,
+      handleChange,
       toggleDrawer
     } = this.handlers;
-    const links = routes.map(route => (
-      <NavLink
-        activeClassName="ActiveNavItem"
-        className="NavItem"
-        key={route.path}
-        to={route.path}
-        replace
-      > <Button variant="text" className="NavText"> {route.name} </Button>
-      </NavLink>
-    ));
+
     return (
-      <Drawer
-        anchor="left"
-        open={this.state.showDrawer}
-        onClose={toggleDrawer}
-      >
-        <img
-          alt="logo"
-          src={logo}
-          className={classes.logo}
-        />
-        <Button
-          className="SignOutButton"
-          variant="text"
-          onClick={signOut}
-        > Sign Out
-        </Button>
-        {links}
-      </Drawer>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            aria-label="Menu"
+            onClick={toggleDrawer}
+          >
+            <MenuIcon />
+          </IconButton>
+          <div className={classes.grow} />
+          <img
+            className={classes.logo}
+            src={logo}
+            alt="Gratis Logo"
+          />
+          <div className={classes.grow} />
+          <IconButton
+            aria-owns={anchorEl ? 'profile-menu' : undefined}
+            aria-haspopup="true"
+            onClick={event => handleChange('anchorEl')(event.currentTarget)}>
+            <AccountCircleIcon />
+          </IconButton>
+          {this.renderProfileMenu()}
+        </Toolbar>
+      </AppBar>
     );
   }
 
-  renderToolbar() {
-    const { toggleDrawer } = this.handlers;
+  renderProfileMenu() {
+    const {
+      handleChange,
+      signOut
+    } = this.handlers;
+    const { anchorEl } = this.state;
 
     return (
-      <IconButton
-        aria-label="Menu"
-        onClick={toggleDrawer}
+      <Menu
+        id="profile-menu"
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleChange('anchorEl')(null)}
       >
-        <MenuIcon />
-      </IconButton>
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar aria-label="Profile Picture">P</Avatar>
+            }
+            action={
+              <div>
+                <NavLink
+                  to={'/profile'}
+                  replace
+                >
+                  <IconButton>
+                    <SettingsIcon />
+                  </IconButton>
+                </NavLink>
+                <IconButton onClick={signOut}>
+                  <ExitToAppIcon />
+                </IconButton>
+              </div>
+            }
+          />
+        </Card>
+      </Menu>
+    );
+  }
+
+  renderNavDrawer() {
+    const routes = [
+      { name: 'Events', path: '/events' },
+      { name: 'Analytics', path: '/analytics' }
+    ];
+
+    const props = {
+      routes,
+      showDrawer: this.state.showDrawer,
+      closeDrawer: () => this.handlers.handleChange('showDrawer')(false)
+    };
+
+    return (
+      <NavDrawer
+        {...props}
+      />
     )
   }
 
@@ -123,23 +154,21 @@ class UserLayout extends Component {
       <Switch>
         <Route path="/events" render={() => <EventsLayout user={user} events={events} />} />
         <Route path="/analytics" render={() => <AnalyticsLayout user={user} events={events} />} />
-        <Route path="/profile" component={ProfileLayout} />
-        <Route path="/settings" component={SettingsLayout} />
-        <Redirect exact from="/" to="/events" />
+        <Route path="/profile" component={() => <ProfileLayout user={user} /> }/>
+        <Redirect to="/events" />
       </Switch>
     );
   }
 
   render() {
-    const { classes } = this.props;
-
+    const { classes} = this.props;
     return (
       <div className={classes.container}>
-        {this.renderDrawer()}
         <div className={classes.layout}>
-          <div className={classes.toolbar}>
-            {this.renderToolbar()}
+          <div className={classes.appBar}>
+            {this.renderAppBar()}
           </div>
+          {this.renderNavDrawer()}
           {this.renderLayout()}
         </div>
       </div>

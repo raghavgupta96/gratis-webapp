@@ -7,10 +7,7 @@ import styles from './Form.styles';
 const imageForm = (props) => {
   const {
     classes,
-    fileHandler,
-    deleteImage,
-    // newEvent
-    imageURLs
+    fileHandler
   } = props;
 
   return (
@@ -25,18 +22,8 @@ const imageForm = (props) => {
             if (event.target.files.length === 1) fileHandler(event.target.files[0])
           }}
         />
-        <label for="file">Upload Pictures Here!</label>
+        <label htmlFor="file">Upload Pictures Here!</label>
       </div>
-      {/*
-      <div>
-        {imageURLs.map((e, i) => (
-          <div>
-            <img src={e} alt="Thumbnail" />
-            <button onClick={deleteImage}>remove</button>
-          </div>
-        ))}
-      </div>
-      */}
     </form>
   );
 };

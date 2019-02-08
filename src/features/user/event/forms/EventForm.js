@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import styles from './Form.styles';
@@ -36,6 +35,7 @@ const eventForm = (props) => {
       />
       <div className={classes.eventDate}>
         <TextField
+          className={classes.datetimePicker}
           label="Start Date & Time"
           type="datetime-local"
           value={event.startDate}
@@ -43,6 +43,7 @@ const eventForm = (props) => {
           InputLabelProps={{ shrink: true }}
         />
         <TextField
+          className={classes.datetimePicker}
           label="End Date & Time"
           type="datetime-local"
           value={event.endDate}

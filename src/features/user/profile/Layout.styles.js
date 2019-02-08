@@ -6,15 +6,9 @@ const styles = theme => ({
   },
   content: {
     display: 'flex',
-    flexFlow: 'row wrap',
-    justifyContent: 'flex-end',
+    flexFlow: 'column nowrap',
+    justifyContent: 'flex-start',
     paddingBottom: '48px'
-  },
-  dialogPaper: {
-    minWidth: 'fit-content',
-    maxWidth: '600px',
-    minHeight: '66vh',
-    maxHeight: '66vh'
   },
   fab: {
     position: 'absolute',
@@ -28,3 +22,4 @@ const styles = theme => ({
 });
 
 export default styles;
+

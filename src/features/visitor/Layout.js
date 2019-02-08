@@ -4,6 +4,7 @@ import { auth } from '../../modules/firebase';
 import styles from './Layout.styles';
 import logo from './Logo-h500px.png';
 import LoginForm from './login/Form';
+import { firestore } from '../../modules/firebase';
 
 class VisitorLayout extends Component {
   state = {
@@ -20,9 +21,10 @@ class VisitorLayout extends Component {
 
       auth.doSignInWithEmailAndPassword(email, password)
         .then((userRef) => {
-          const { user } = userRef;
-          const { uid } = user;
-          setUser(user);
+          const uid = userRef.user.uid;
+          firestore
+            .doGetUser(uid)
+            .onSnapshot(snapshot => setUser({ ...snapshot.data(), uid }));
           console.log(`[VisitorLayout] Signed in with uid ${uid}`);
         })
         .catch((error) => {
