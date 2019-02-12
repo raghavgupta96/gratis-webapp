@@ -1,13 +1,17 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import {
   Switch,
   Route,
   Redirect,
   NavLink,
-  withRouter
+  withRouter,
 } from 'react-router-dom';
+import {
+  object,
+  shape,
+  string,
+  func,
+} from 'prop-types';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Menu from '@material-ui/core/Menu';
@@ -15,39 +19,53 @@ import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
-import { withStyles} from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import SettingsIcon from '@material-ui/icons/Settings';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import { auth } from '../../modules/firebase';
-import { eventsActionTypes } from '../../modules/redux/reducers/events';
+
 import EventsLayout from './event/Layout';
 import AnalyticsLayout from './analytics/Layout';
 import ProfileLayout from './profile/Layout';
 import NavDrawer from './NavDrawer';
-import styles from './Layout.styles';
-import { userActionTypes } from '../../modules/redux/reducers/user';
 import logo from './Logo-h500px.png';
+import styles from './Layout.styles';
 
+/** Container seen by authenticated users. */
 class UserLayout extends Component {
+  static propTypes = {
+    history: object.isRequired,
+    classes: shape({
+      container: string,
+      layout: string,
+      appBar: string,
+      grow: string,
+      logo: string,
+      menuButton: string,
+    }).isRequired,
+    user: object.isRequired,
+    events: object.isRequired,
+    signOut: func.isRequired,
+  }
+
   state = {
     showDrawer: false,
-    anchorEl: null
-  };
+    anchorEl: null,
+    routes: [
+      { name: 'Events', path: '/events' },
+      { name: 'Analytics', path: '/analytics' },
+    ],
+  }
 
   handlers = {
     handleChange: key => value => this.setState({ [key]: value }),
-    toggleDrawer: () => this.setState(state => ({ showDrawer: !state.showDrawer })),
-    signOut: () => {
-      auth.doSignOut()
-        .then(() => {
-          this.props.deleteUser();
-          this.props.setEvents({});
-        });
+    toggleDrawer: () => {
+      this.setState(state => ({ showDrawer: !state.showDrawer }));
     },
   }
 
+  /** Make sure that when leaving, the path resets to "/". */
   componentWillUnmount() {
     const { history } = this.props;
     history.replace('/');
@@ -58,7 +76,7 @@ class UserLayout extends Component {
     const { anchorEl } = this.state;
     const {
       handleChange,
-      toggleDrawer
+      toggleDrawer,
     } = this.handlers;
 
     return (
@@ -80,7 +98,8 @@ class UserLayout extends Component {
           <IconButton
             aria-owns={anchorEl ? 'profile-menu' : undefined}
             aria-haspopup="true"
-            onClick={event => handleChange('anchorEl')(event.currentTarget)}>
+            onClick={event => handleChange('anchorEl')(event.currentTarget)}
+          >
             <AccountCircleIcon />
           </IconButton>
           {this.renderProfileMenu()}
@@ -90,11 +109,9 @@ class UserLayout extends Component {
   }
 
   renderProfileMenu() {
-    const {
-      handleChange,
-      signOut
-    } = this.handlers;
+    const { signOut } = this.props;
     const { anchorEl } = this.state;
+    const { handleChange } = this.handlers;
 
     return (
       <Menu
@@ -108,10 +125,10 @@ class UserLayout extends Component {
             avatar={
               <Avatar aria-label="Profile Picture">P</Avatar>
             }
-            action={
+            action={(
               <div>
                 <NavLink
-                  to={'/profile'}
+                  to="/profile"
                   replace
                 >
                   <IconButton>
@@ -122,7 +139,7 @@ class UserLayout extends Component {
                   <ExitToAppIcon />
                 </IconButton>
               </div>
-            }
+            )}
           />
         </Card>
       </Menu>
@@ -130,38 +147,39 @@ class UserLayout extends Component {
   }
 
   renderNavDrawer() {
-    const routes = [
-      { name: 'Events', path: '/events' },
-      { name: 'Analytics', path: '/analytics' }
-    ];
+    const {
+      routes,
+      showDrawer,
+    } = this.state;
 
     const props = {
       routes,
-      showDrawer: this.state.showDrawer,
-      closeDrawer: () => this.handlers.handleChange('showDrawer')(false)
+      showDrawer,
+      closeDrawer: () => this.handlers.handleChange('showDrawer')(false),
     };
-
     return (
       <NavDrawer
         {...props}
       />
-    )
+    );
   }
 
   renderLayout() {
     const { user, events } = this.props;
+
     return (
       <Switch>
         <Route path="/events" render={() => <EventsLayout user={user} events={events} />} />
         <Route path="/analytics" render={() => <AnalyticsLayout user={user} events={events} />} />
-        <Route path="/profile" component={() => <ProfileLayout user={user} /> }/>
+        <Route path="/profile" component={() => <ProfileLayout user={user} />} />
         <Redirect to="/events" />
       </Switch>
     );
   }
 
   render() {
-    const { classes} = this.props;
+    const { classes } = this.props;
+
     return (
       <div className={classes.container}>
         <div className={classes.layout}>
@@ -176,25 +194,6 @@ class UserLayout extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  deleteUser: () => dispatch({ type: userActionTypes.SET_USER, user: null }),
-  setEvents: (events) => dispatch({ type: eventsActionTypes.SET_EVENTS, events })
-});
-
-UserLayout.propTypes = {
-  handlers: PropTypes.objectOf(PropTypes.func)
-};
-UserLayout.defaultProps = {
-  events: [],
-  handlers: { }
-};
-
 export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(withStyles(
-    styles,
-    { withTheme: true }
-  )(UserLayout))
+  withStyles(styles)(UserLayout),
 );

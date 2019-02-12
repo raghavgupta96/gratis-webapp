@@ -1,4 +1,4 @@
-const styles = theme => ({
+const styles = {
   form: {
     display: 'flex',
     flexFlow: 'column nowrap',
@@ -7,45 +7,33 @@ const styles = theme => ({
     height: '45vh',
     minHeight: '500px',
     minWidth: '250px',
-    maxWidth: '650px'
+    maxWidth: '650px',
   },
   activeForm: {
   },
   eventTextField: {
     width: '90%',
-    margin: '16px 0'
+    margin: '16px 0',
   },
   eventDate: {
     display: 'flex',
     flexFlow: 'row wrap',
     justifyContent: 'space-evenly',
-    margin: '16px 0'
+    margin: '16px 0',
   },
   datetimePicker: {
-    margin: '16px'
+    margin: '16px',
   },
-  tags: {
-  },
-  tagInput: {
-
-  },
-  tagInputField: {
-
-  },
-  selected: {
-
-  },
-  tag: {
-  },
-  remove: {
-    color: 'red'
-  },
-  suggestions: {
-
-  },
-  activeSuggesion: {
-
-  },
+  // To style react-tag-input, see:
+  // https://stackoverflow.com/questions/40453058/stying-in-react-tag-input
+  tags: { },
+  tagInput: { },
+  tagInputField: { },
+  selected: { },
+  tag: { },
+  remove: { },
+  suggestions: { },
+  activeSuggesion: { },
   inputfileContainer: {
     display: 'flex',
     alignItems: 'center',
@@ -53,7 +41,7 @@ const styles = theme => ({
     width: '100%',
     height: '100%',
     border: '2px dotted gray',
-    position: 'relative'
+    position: 'relative',
   },
   inputfile: {
     width: '100%',
@@ -68,9 +56,9 @@ const styles = theme => ({
       display: 'inline-block',
     },
     '&:focus + label': {
-      color: 'red'
-    }
-  }
-});
+      color: 'red',
+    },
+  },
+};
 
 export default styles;

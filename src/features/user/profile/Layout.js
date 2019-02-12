@@ -1,21 +1,34 @@
 import React, { Component } from 'react';
+import {
+  object,
+  shape,
+  string,
+} from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import Fab from '@material-ui/core/Fab';
 import EditIcon from '@material-ui/icons/Edit';
+
 import styles from './Layout.styles';
 
 class ProfileLayout extends Component {
+  static propTypes = {
+    classes: shape({
+      profile: string,
+    }).isRequired,
+    user: object.isRequired,
+  }
+
   state = {
     user: {
       name: '',
       cuisine: '',
-      area: ''
+      area: '',
     },
     edit: {
-      name: false
-    }
+      name: false,
+    },
   }
 
   handlers = {
@@ -99,7 +112,4 @@ class ProfileLayout extends Component {
   }
 }
 
-export default withStyles(
-  styles,
-  { withTheme: true }
-)(ProfileLayout);
+export default withStyles(styles)(ProfileLayout);

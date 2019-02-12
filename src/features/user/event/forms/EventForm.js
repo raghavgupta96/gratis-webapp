@@ -1,8 +1,28 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {
+  object,
+  shape,
+  string,
+  func,
+} from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+
 import styles from './Form.styles';
+
+const propTypes = {
+  classes: shape({
+    form: string,
+    eventTextField: string,
+    eventDate: string,
+    datetimePicker: string,
+  }).isRequired,
+  event: object.isRequired,
+  titleHandler: func.isRequired,
+  descriptionHandler: func.isRequired,
+  startDateHandler: func.isRequired,
+  endDateHandler: func.isRequired,
+};
 
 const eventForm = (props) => {
   const {
@@ -11,7 +31,7 @@ const eventForm = (props) => {
     titleHandler,
     descriptionHandler,
     startDateHandler,
-    endDateHandler
+    endDateHandler,
   } = props;
 
   const renderForm = () => (
@@ -20,14 +40,14 @@ const eventForm = (props) => {
         className={classes.eventTextField}
         label="Title"
         value={event.title}
-        onChange={event => titleHandler(event.target.value)}
+        onChange={e => titleHandler(e.target.value)}
         fullWidth
       />
       <TextField
         className={classes.eventTextField}
         label="Description"
         value={event.description}
-        onChange={event => descriptionHandler(event.target.value)}
+        onChange={e => descriptionHandler(e.target.value)}
         variant="outlined"
         fullWidth
         multiline
@@ -56,17 +76,9 @@ const eventForm = (props) => {
   return renderForm();
 };
 
-eventForm.propTypes = {
-  newEvent: PropTypes.object,
-  handlers: PropTypes.objectOf(PropTypes.func)
-};
-
-eventForm.defaultProps = {
-  newEvent: null,
-  handlers: { }
-};
+eventForm.propTypes = propTypes;
 
 export default withStyles(
   styles,
-  { withTheme: true }
+  { withTheme: true },
 )(eventForm);

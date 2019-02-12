@@ -1,61 +1,97 @@
 import firebase, { db } from './firebase';
 
-// Get Events
-export const doGetUser = (uid) => {
-  const userRef = db.collection('Users').doc(uid);
-  return userRef;
+const rootCollections = {
+  Events: 'Events',
+  Users: 'Users',
 };
 
-export const doAddEvent = (event) => {
-  const eventsRef = db.collection('Events');
-  return eventsRef.add(event);
+/**
+ * Calls callback on snapshots of the user's document.
+ * @param {string} uid
+ * @param {function(firebase.firestore.DocumentSnapshot)} callback
+ */
+export const onUserSnapshot = (uid, callback) => (
+  db.collection(rootCollections.Users).doc(uid).onSnapshot(callback)
+);
+
+/**
+ * Calls callback on snapshots of the user's events.
+ * @param {string} uid
+ * @param {function(firebase.firestore.QuerySnapshot)} callback
+ */
+export const onEventsOfUserSnapshot = (uid, callback) => {
+  const field = 'eventOf';
+  const query = db.collection(rootCollections.Events).where(field, '==', uid);
+  return query.onSnapshot(callback);
 };
 
-export const doGetEvent = (eid) => {
-  const eventRef = db.collection('Events').doc(eid);
-  return eventRef.get();
+/**
+ * A transaction that adds an event to the Events collection and updates the users eventIDs.
+ * @returns {Promise} Promise returned by updateFunction.
+ * @param {string} uid
+ * @param {object} event
+ */
+export const addEventToUser = (uid, event) => {
+  const eventsRef = db.collection(rootCollections.Events).doc();
+  const userDocRef = db.collection(rootCollections.Users).doc(uid);
+
+  // https://firebase.google.com/docs/reference/js/firebase.firestore.Transaction
+  return db.runTransaction(transaction => (
+    // Add the event document,
+    transaction
+      .get(userDocRef)
+      .then((userDoc) => {
+        const userEventIDs = userDoc.get('eventIDs');
+
+        if (userEventIDs) {
+          transaction
+            .set(eventsRef, event)
+            .update(userDocRef, {
+              eventIDs: firebase.firestore.FieldValue.arrayUnion(eventsRef.id),
+            });
+        } else {
+          transaction
+            .set(eventsRef, event)
+            .set(userDocRef, {
+              eventIDs: [eventsRef.id],
+            });
+        }
+      })
+  ));
 };
 
-export const doGetEventsOfUser = (uid) => {
-  const eventsRef = db.collection('Events').where('eventOf', '==', uid);
-  return eventsRef;
-};
+/**
+ * Updates an event doc.
+ * @returns Promise containing void.
+ * @param {string} eventID
+ * @param {Object} event Event document.
+ */
+export const updateEvent = (eventID, event) => (
+  db.collection(rootCollections.Events).doc(eventID).update(event)
+);
 
-export const doUpdateUserEventIDs = (eventID, uid) => {
-  const uidRef = db.collection('Users').doc(uid);
+/**
+ * A transaction that deletes an event and updates the event's of a user.
+ * @returns Promise returned by updateFunction.
+ * @param {string} eventID
+ * @param {string} uid
+ */
+export const deleteEventOfUser = (eventID, uid) => {
+  const eventDocRef = db.collection(rootCollections.Events).doc(eventID);
+  const userDocRef = db.collection(rootCollections.Users).doc(uid);
 
-  return uidRef.update({
-    eventIDs: firebase.firestore.FieldValue.arrayUnion(eventID)
-  });
-};
+  return db.runTransaction(transaction => (
+    // Add the event document,
+    transaction
+      .get(userDocRef)
+      .then((userDoc) => {
+        const eventIDs = userDoc.get('eventIDs');
 
-export const doAddUserEventIDs = (eventID, uid) => {
-  const uidRef = db.collection('Users').doc(uid);
-
-  return uidRef.set({ eventIDs: [eventID] });
-};
-
-export const deleteEvent = eventId => db.collection('Events').doc(eventId).delete();
-
-export const deleteEventOfUser = (eventId, userId) => {
-  db
-    .collection('Users')
-    .doc(userId)
-    .get()
-    .then(snapshot => {
-      const user = snapshot.data();
-      db
-        .collection('Users')
-        .doc(userId)
-        .update({
-          eventIDs: user.eventIDs.filter(id => id !== eventId)
-        });
-    })
-};
-
-export const updateEvent = (eventId, event) => {
-  db
-    .collection('Events')
-    .doc(eventId)
-    .update(event);
+        transaction
+          .delete(eventDocRef)
+          .update(userDocRef, {
+            eventIDs: eventIDs.filter(id => id !== eventDocRef.id),
+          });
+      })
+  ));
 };

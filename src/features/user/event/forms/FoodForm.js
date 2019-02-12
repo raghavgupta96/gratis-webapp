@@ -1,14 +1,34 @@
-// To style react-tag-input, see:
-// https://stackoverflow.com/questions/40453058/stying-in-react-tag-input
 import React from 'react';
-import PropTypes from 'prop-types';
+import {
+  object,
+  shape,
+  func,
+  string,
+} from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import { WithContext as ReactTags } from 'react-tag-input';
+
 import styles from './Form.styles';
 
 const KeyCodes = {
   comma: 188,
-  enter: 13
+  enter: 13,
+};
+
+const propTypes = {
+  classes: shape({
+    tags: string,
+    tagInput: string,
+    tagInputField: string,
+    selected: string,
+    tag: string,
+    remove: string,
+    suggestions: string,
+    activeSuggestions: string,
+  }).isRequired,
+  tagsHandler: func.isRequired,
+  allergiesHandler: func.isRequired,
+  event: object.isRequired,
 };
 
 const foodForm = (props) => {
@@ -16,7 +36,7 @@ const foodForm = (props) => {
     classes,
     tagsHandler,
     allergiesHandler,
-    event
+    event,
   } = props;
 
   const renderTags = () => {
@@ -29,18 +49,17 @@ const foodForm = (props) => {
         tag: classes.tag,
         remove: classes.remove,
         suggestions: classes.suggestions,
-        activeSuggestions: classes.activeSuggestions
+        activeSuggestions: classes.activeSuggestions,
       },
       delimiters: [KeyCodes.comma, KeyCodes.enter],
       tags: event.tags,
-      suggestions: [ ],
+      suggestions: [],
       handleDelete: (index) => {
         const { tags } = props.event;
         tagsHandler(tags.filter((tag, i) => index !== i));
       },
       handleAddition: (tag) => {
         const { tags } = props.event;
-        console.log(tags, tag)
         tagsHandler([...tags, tag]);
       },
       handleDrag: (tag, currPos, newPos) => {
@@ -49,7 +68,7 @@ const foodForm = (props) => {
         newTags.splice(currPos, 1);
         newTags.splice(newPos, 0, tag);
         tagsHandler(newTags);
-      }
+      },
     };
     return <ReactTags {...tagsProps} />;
   };
@@ -64,8 +83,8 @@ const foodForm = (props) => {
         tag: classes.tag,
         remove: classes.remove,
         suggestions: classes.suggestions,
-        activeSuggestions: classes.activeSuggestions
-     },
+        activeSuggestions: classes.activeSuggestions,
+      },
       delimiters: [KeyCodes.comma, KeyCodes.enter],
       tags: event.allergies,
       suggestions: [
@@ -74,7 +93,7 @@ const foodForm = (props) => {
         { id: 'MEAT', text: 'Meat' },
         { id: 'VEGAN', text: 'Vegan' },
         { id: 'KOSHER', text: 'Kosher' },
-        { id: 'HALAL', text: 'Halal' }
+        { id: 'HALAL', text: 'Halal' },
       ],
       handleDelete: (index) => {
         const { allergies } = props.event;
@@ -90,9 +109,9 @@ const foodForm = (props) => {
         newTags.splice(currPos, 1);
         newTags.splice(newPos, 0, tag);
         allergiesHandler(newTags);
-      }
+      },
     };
-    return <ReactTags {...allergiesProps} />
+    return <ReactTags {...allergiesProps} />;
   };
 
   return (
@@ -103,17 +122,9 @@ const foodForm = (props) => {
   );
 };
 
-foodForm.propTypes = {
-  newEvent: PropTypes.object,
-  handlers: PropTypes.objectOf(PropTypes.func)
-};
-
-foodForm.defaultProps = {
-  newEvent: null,
-  handlers: { }
-};
+foodForm.propTypes = propTypes;
 
 export default withStyles(
   styles,
-  { withTheme: true }
+  { withTheme: true },
 )(foodForm);

@@ -1,189 +1,195 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import PropTypes from 'prop-types';
+import {
+  object,
+  shape,
+  string,
+} from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
+
 import {
   firebase,
   firestore,
-  storage
+  storage,
 } from '../../../modules/firebase';
 import EventCard from './Card';
 import EventDialog from './Dialog';
 import styles from './Layout.styles';
 
+/** Container for using event-related features. */
 class EventsLayout extends Component {
+  static propTypes = {
+    classes: shape({
+      layout: string,
+      content: string,
+      dialogPaper: string,
+      fab: string,
+    }).isRequired,
+    user: object.isRequired,
+    events: object.isRequired,
+  };
+
   state = {
     showAddEventDialog: false,
     showEditEventDialog: false,
-    editEventID: ""
+    editEventID: '',
   };
 
   handlers = {
-    handleChange: key => value => {
-      this.setState({ [key]: value });
-    },
+    handleChange: key => value => this.setState({ [key]: value }),
+    /**
+     * Uploads the file to storage, then adds a document to the Events collection
+     * and update's the user's document with the event in a transaction.
+     *
+     * TODO: How do we make calls to storage and firestore transactional? Cloud functions?
+     */
     addEvent: (event, file) => {
       const { user } = this.props;
 
+      // There really is no transactional way to upload images and update firestore...
+      // https://stackoverflow.com/questions/47740838/couple-firebase-firestore-and-firebase-storage-calls-together-into-a-batch
+      //
       // First upload the file to get the filepath.
+      const { uid } = user;
       storage
-        .uploadImage(user.uid, file)
-        .then(snapshot => {
-          console.log(`[EventLayout] Uploaded ${file.name}`);
-          console.log('[EventLayout] Uploading event...'); 
+        .uploadImage(uid, file)
+        .then((snapshot) => {
           // Then, add the event to the list of events.
+          const FromMillis = firebase.firestore.Timestamp.fromMillis;
           const doc = {
             ...event,
-            startDate: new firebase.firestore.Timestamp.fromMillis(moment(event.startDate).valueOf()),
-            endDate: new firebase.firestore.Timestamp.fromMillis(moment(event.endDate).valueOf()),
-            eventOf: user.uid,
-            imagePath: snapshot.ref.fullPath
+            startDate: new FromMillis(moment(event.startDate).valueOf()),
+            endDate: new FromMillis(moment(event.endDate).valueOf()),
+            eventOf: uid,
+            imagePath: snapshot.ref.fullPath,
           };
           firestore
-            .doAddEvent(doc)
-            .then((eventRef) => {
-              // Finally, create or update the document of events that belong to a user.
-              const eventID = eventRef.id;
-              const uid = user.uid;
-              console.log(`[EventsLayout] Added event(${eventID})`);
-              const userRef = firestore.doGetUser(uid);
-              userRef
-                .get()
-                .then((snapshot) => {
-                  const data = snapshot.data();
-                  const onSuccessCallback = () => {
-                    console.log(`[EventsLayout] Added event(${eventID}) to user(${uid})`);
-                    this.setState({ showDialog: false });
-                  }
-                  const onErrorCallback = (error) => {
-                    console.log(`[EventsLayout] ${JSON.stringify(error)}`);
-                    switch (error.code) {
-                      default: console.log(`[EventsLayout] Unhandled: ${error.code}`);
-                    }
-                  }
-                  if (data.eventIDs) {
-                    firestore
-                      .doUpdateUserEventIDs(eventID, uid)
-                      .then(onSuccessCallback)
-                      .catch(onErrorCallback);
-                  }
-                  else {
-                    firestore
-                      .doAddUserEventIDs(eventID, uid)
-                      .then(onSuccessCallback)
-                      .catch(onErrorCallback)
-                  }
-                });
-              })
-              .catch(error => console.log(`[EventsLayout] ${error.message}`))
-              .finally(() => {
-                this.handlers.handleChange('activeStep')(0);
-                this.handlers.handleChange('showDialog')(false);
-              });
-        });;
+            .addEventToUser(uid, doc)
+            .then(() => this.setState({ showAddEventDialog: false }));
+        });
     },
+    /**
+     * Deletes the old event image, uploads the new event image,
+     * then updates the event document.
+     */
     editEvent: (event, file) => {
       const {
         user,
-        events
+        events,
       } = this.props;
       const { editEventID } = this.state;
+
       storage
         .deleteImage(events[editEventID].storagePath)
         .then(() => {
           storage
             .uploadImage(user.uid, file)
-            .then(snapshot => {
-              console.log(`[EventLayout] Uploaded ${file.name}`);
-              console.log('[EventLayout] Uploading event...'); 
-              // Then, update event
+            .then((snapshot) => {
+              const FromMillis = firebase.firestore.Timestamp.fromMillis;
               const doc = {
                 ...event,
-                startDate: new firebase.firestore.Timestamp.fromMillis(moment(event.startDate).valueOf()),
-                endDate: new firebase.firestore.Timestamp.fromMillis(moment(event.endDate).valueOf()),
+                startDate: new FromMillis(moment(event.startDate).valueOf()),
+                endDate: new FromMillis(moment(event.endDate).valueOf()),
                 eventOf: user.uid,
-                imagePath: snapshot.ref.fullPath
+                imagePath: snapshot.ref.fullPath,
               };
               firestore
-                .updateEvent(editEventID, doc);
+                .updateEvent(editEventID, doc)
+                .then(() => this.setState({ showAddEventDialog: false }));
             });
         });
-    }
+    },
   };
 
   renderEventCards() {
     const {
       user,
-      events
+      events,
     } = this.props;
-    const eventCardList = [];
 
-    for (let key of Object.keys(events)) {
+    const eventCardList = [];
+    Object.keys(events).forEach((key) => {
       const props = {
         key,
         event: events[key],
         deleteEvent: () => {
           storage.deleteImage(events[key].storagePath);
-          firestore.deleteEvent(key);
           firestore.deleteEventOfUser(key, user.uid);
         },
         editEvent: () => {
           this.setState({
             showEditEventDialog: true,
-            editEventID: key
+            editEventID: key,
           });
-        }
+        },
       };
-      eventCardList.push(
-        <EventCard { ...props } />
-      );
-    }
+      eventCardList.push(<EventCard {...props} />);
+    });
     return eventCardList;
   }
 
   renderAddEventDialog() {
-    const { handleChange } = this.handlers;
+    const { user } = this.props;
+    const { showAddEventDialog } = this.state;
+    const {
+      handleChange,
+      addEvent,
+    } = this.handlers;
+
     const props = {
-      user: this.props.user,
-      open: this.state.showAddEventDialog,
+      user,
+      open: showAddEventDialog,
+      submit: addEvent,
       onClose: () => handleChange('showAddEventDialog')(false),
-      submit: this.handlers.addEvent
-    }
-    return <EventDialog { ...props } />;
+    };
+    return <EventDialog {...props} />;
   }
 
   renderEditEventDialog() {
-    const { handleChange } = this.handlers;
-    const event = {
-      ...this.props.events[this.state.editEventID]
-    };
+    const {
+      user,
+      events,
+    } = this.props;
+    const {
+      editEventID,
+      showEditEventDialog,
+    } = this.state;
+    const {
+      handleChange,
+      editEvent,
+    } = this.handlers;
+
+    const event = { ...events[editEventID] };
     event.startDate = moment().format('YYYY-MM-DDTHH:mm');
     event.endDate = moment().format('YYYY-MM-DDTHH:mm');
     const props = {
       event,
-      user: this.props.user,
-      open: this.state.showEditEventDialog,
+      user,
+      open: showEditEventDialog,
       onClose: () => handleChange('showEditEventDialog')(false),
-      submit: this.handlers.editEvent
-    }
-    return <EventDialog { ...props } />;
-
+      submit: editEvent,
+    };
+    return <EventDialog {...props} />;
   }
 
   render() {
     const { classes } = this.props;
+    const {
+      showAddEventDialog,
+      showEditEventDialog,
+    } = this.state;
     const { handleChange } = this.handlers;
 
     return (
       <div className={classes.layout}>
         <div className={classes.content}>
           {this.renderEventCards()}
-          {this.state.showAddEventDialog
+          {showAddEventDialog
             ? this.renderAddEventDialog()
             : null}
-          {this.state.showEditEventDialog
+          {showEditEventDialog
             ? this.renderEditEventDialog()
             : null}
           <Fab
@@ -200,15 +206,4 @@ class EventsLayout extends Component {
   }
 }
 
-EventsLayout.defaultProps = {
-  events: {}
-};
-EventsLayout.propTypes = {
-  user: PropTypes.object.isRequired,
-  events: PropTypes.object
-};
-
-export default withStyles(
-  styles,
-  { withTheme: true }
-)(EventsLayout);
+export default withStyles(styles)(EventsLayout);

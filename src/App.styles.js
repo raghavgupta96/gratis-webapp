@@ -1,4 +1,4 @@
-const styles = theme => ({
+const styles = {
   root: {
     display: 'flex',
     flexFlow: 'column nowrap',
@@ -11,11 +11,13 @@ const styles = theme => ({
   content: {
     display: 'flex',
     flex: 'auto',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
   footer: {
-    flex: 'none'
-  }
-});
+    flex: 'none',
+  },
+};
 
 export default styles;

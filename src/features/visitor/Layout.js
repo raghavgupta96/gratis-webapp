@@ -1,67 +1,78 @@
 import React, { Component } from 'react';
 import { withStyles } from '@material-ui/core/styles';
-import { auth } from '../../modules/firebase';
+import {
+  object,
+  shape,
+  string,
+  func,
+} from 'prop-types';
+
+import LoginForm from './login/Form';
 import styles from './Layout.styles';
 import logo from './Logo-h500px.png';
-import LoginForm from './login/Form';
-import { firestore } from '../../modules/firebase';
 
+/** Container seen by unauthenticated users. */
 class VisitorLayout extends Component {
+  static propTypes = {
+    classes: shape({
+      layout: string,
+      logo: string,
+    }).isRequired,
+    error: object.isRequired,
+    login: func.isRequired,
+  }
+
   state = {
     email: '',
     password: '',
-    error: null
   }
 
   handlers = {
-    stateChange: key => value => this.setState({ [key]: value }),
-    login: () => {
-      const { email, password } = this.state;
-      const { setUser } = this.props;
+    handleChange: key => value => this.setState({ [key]: value }),
+  }
 
-      auth.doSignInWithEmailAndPassword(email, password)
-        .then((userRef) => {
-          const uid = userRef.user.uid;
-          firestore
-            .doGetUser(uid)
-            .onSnapshot(snapshot => setUser({ ...snapshot.data(), uid }));
-          console.log(`[VisitorLayout] Signed in with uid ${uid}`);
-        })
-        .catch((error) => {
-          this.setState({ error });
-        });
-    }
+  renderLoginForm() {
+    const {
+      error,
+      login,
+    } = this.props;
+    const {
+      email,
+      password,
+    } = this.state;
+    const { handleChange } = this.handlers;
+
+    const loginFormProps = {
+      ...this.state,
+      emailHandler: handleChange('email'),
+      passwordHandler: handleChange('password'),
+      login: () => login(email, password),
+      error,
+    };
+    return <LoginForm {...loginFormProps} />;
   }
 
   render() {
-    const { classes } = this.props;
     const {
-      stateChange,
-      login
-    } = this.handlers;
-
-    const loginFormHandlers = {
-      emailHandler: stateChange('email'),
-      passwordHandler: stateChange('password'),
-      login
-    }
+      classes,
+      login,
+    } = this.props;
+    const {
+      email,
+      password,
+    } = this.state;
 
     return (
       <div
         className={classes.layout}
-        onKeyPress={(event) => { if (event.key === 'Enter') login(); }}
+        onKeyPress={(event) => { if (event.key === 'Enter') login(email, password); }}
+        role="presentation"
       >
         <img className={classes.logo} alt="logo" src={logo} />
-        <LoginForm
-          {...this.state}
-          {...loginFormHandlers}
-        />
+        {this.renderLoginForm()}
       </div>
     );
   }
 }
 
-export default withStyles(
-  styles,
-  { withTheme: true }
-)(VisitorLayout);
+export default withStyles(styles)(VisitorLayout);

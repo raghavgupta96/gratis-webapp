@@ -1,19 +1,24 @@
-export const makeActionCreator = (type, ...argNames) => {
-  return function(...args) {
-    const action = { type };
-    argNames.forEach((arg, index) => {
-      action[argNames[index]] = args[index];
-    });
-    return action;
-  }
-}
+/**
+ * Returns an action creator whose handler is assignment of args to argNames.
+ * @param {string} type
+ * @param  {...string} argNames
+ */
+export const makeActionCreator = (type, ...argNames) => (...args) => {
+  const action = { type };
+  argNames.forEach((arg, index) => {
+    action[argNames[index]] = args[index];
+  });
+  return action;
+};
 
-export const createReducer = (initialState, handlers) => {
-  return function reducer(state = initialState, action) {
-    if (handlers.hasOwnProperty(action.type)) {
-      return handlers[action.type](state, action)
-    } else {
-      return state
-    }
+/**
+ * Returns a reducer given an initial state and handlers.
+ * @param {*} initialState
+ * @param {Object} handlers Object of functions
+ */
+export const createReducer = (initialState, handlers) => (state = initialState, action) => {
+  if (handlers[action.type]) {
+    return handlers[action.type](state, action);
   }
-}
+  return state;
+};

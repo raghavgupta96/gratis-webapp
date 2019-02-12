@@ -1,11 +1,34 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import {
+  object,
+  shape,
+  string,
+  func,
+} from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
+
 import styles from './Form.styles';
 
-const form = (props) => {
+const propTypes = {
+  classes: shape({
+    container: string,
+    form: string,
+    controls: string,
+    textField: string,
+    submitButton: string,
+    error: string,
+  }).isRequired,
+  email: string.isRequired,
+  password: string.isRequired,
+  error: object.isRequired,
+  emailHandler: func.isRequired,
+  passwordHandler: func.isRequired,
+  login: func.isRequired,
+};
+
+const loginForm = (props) => {
   const {
     classes,
     email,
@@ -13,7 +36,7 @@ const form = (props) => {
     error,
     emailHandler,
     passwordHandler,
-    login
+    login,
   } = props;
 
   const renderForm = () => (
@@ -48,46 +71,26 @@ const form = (props) => {
         variant="contained"
         color="primary"
         onClick={login}
-      > Login
+      >
+      Login
       </Button>
     </div>
   );
 
-  const renderError = () => error
-    ? <p className={classes.error}>{error.message}</p>
-    : <p className={classes.error} />;
+  const renderError = <p className={classes.error}>{error.message}</p>;
 
   return (
     <div className={classes.container}>
       {renderForm()}
       {renderControls()}
-      {renderError()}
+      {renderError}
     </div>
   );
 };
 
-form.propTypes = {
-  credentials: PropTypes.shape({
-    email: PropTypes.string,
-    password: PropTypes.string
-  }),
-  setters: PropTypes.objectOf(PropTypes.func),
-  handlers: PropTypes.objectOf(PropTypes.func),
-  error: PropTypes.object // Not sure what the shape of an error should be
-};
-form.defaultProps = {
-  credentials: {
-    email: '',
-    password: ''
-  },
-  setters: null,
-  handlers: {
-    loginHandler: () => window.alert('submitted')
-  },
-  error: null
-};
+loginForm.propTypes = propTypes;
 
 export default withStyles(
   styles,
-  { withTheme: true}
-)(form);
+  { withTheme: true },
+)(loginForm);
