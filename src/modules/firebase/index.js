@@ -7,5 +7,5 @@ export {
   firebase,
   auth,
   firestore,
-  storage
+  storage,
 };

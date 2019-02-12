@@ -1,27 +1,15 @@
 import { auth } from './firebase';
+// TODO: Does this really need to be in it's own file?
+//       It only encapsulates our use of the firebase.auth.Auth object,
+//       but we're essentially just wrapping it's methods.
 
-// Set up Auth Observer
-export const onAuthStateChanged = callback => auth.onAuthStateChanged(user => callback(user));
-
-// Sign Up
-export const doCreateUserWithEmailAndPassword = (email, password) => (
-  auth.createUserWithEmailAndPassword(email, password)
+/** Wrapped methods. */
+export const signInWithEmailAndPassword = (...args) => auth.signInWithEmailAndPassword(...args);
+export const createUserWithEmailAndPassword = (...args) => (
+  auth.createUserWithEmailAndPassword(...args)
 );
+export const sendPasswordResetEmail = (...args) => auth.sendPasswordResetEmail(...args);
+export const onAuthStateChanged = (...args) => auth.onAuthStateChanged(...args);
+export const signOut = (...args) => auth.signOut(...args);
 
-// Sign In
-export const doSignInWithEmailAndPassword = (email, password) => (
-  auth.signInWithEmailAndPassword(email, password)
-);
-
-// Sign out
-export const doSignOut = () => auth.signOut();
-
-// Password Reset
-export const doPasswordReset = email => (
-  auth.sendPasswordResetEmail(email)
-);
-
-// Password Change
-export const doPasswordUpdate = password => (
-  auth.currentUser.updatePassword(password)
-);
+export const updatePassword = password => auth.currentUser.updatePassword(password);

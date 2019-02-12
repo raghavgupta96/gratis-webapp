@@ -1,4 +1,4 @@
-const styles = theme => ({
+const styles = {
   layout: {
     display: 'flex',
     flexFlow: 'column nowrap',
@@ -6,13 +6,13 @@ const styles = theme => ({
     alignItems: 'center',
     width: '50%',
     height: '85%',
-    minWidth: '33%'
+    minWidth: '33%',
   },
   logo: {
     height: '33%',
     padding: '16px',
-    width: 'auto'
-  }
-});
+    width: 'auto',
+  },
+};
 
 export default styles;
