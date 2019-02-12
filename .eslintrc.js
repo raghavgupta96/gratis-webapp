@@ -16,6 +16,7 @@ module.exports = {
         "some": ['nesting', 'id'],
       },
     },
+    "linebreak-style": false,
   },
   "env": {
     // Include global variables found in browser such as window and document.
