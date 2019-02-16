@@ -6,7 +6,8 @@ const styles = {
     alignItems: 'center',
     height: '45vh',
     minHeight: '500px',
-    minWidth: '250px',
+    minWidth: '300px',
+    width: '66vw',
     maxWidth: '650px',
   },
   activeForm: {
