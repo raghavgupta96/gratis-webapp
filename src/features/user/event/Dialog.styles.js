@@ -3,7 +3,8 @@ const styles = {
     minWidth: 'fit-content',
     maxWidth: '600px',
     minHeight: '66vh',
-    maxHeight: '66vh',
+  },
+  dialogContent: {
   },
 };
 
