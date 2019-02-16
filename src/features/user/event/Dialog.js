@@ -120,7 +120,7 @@ class eventDialog extends Component {
     }
   }
 
-  /**
+ /**
    * Helper function that returns true or false based on step.
    * @returns {boolean}
    * @param {int} step
@@ -204,6 +204,24 @@ class eventDialog extends Component {
     );
   }
 
+  renderDialogContent() {
+    const { classes } = this.props;
+    const {
+      activeStep,
+      steps
+    } = this.state;
+
+    return (
+      <DialogContent
+        className={classes.dialogContent}
+        ref={ref => this.DialogContent = ref}
+      >
+        {this.renderStepper()}
+        {steps[activeStep].component()}
+      </DialogContent>
+    );
+  }
+
   renderDialogActions() {
     const {
       submit,
@@ -271,10 +289,6 @@ class eventDialog extends Component {
       open,
       onClose,
     } = this.props;
-    const {
-      activeStep,
-      steps,
-    } = this.state;
 
     const dialog = (
       <Dialog
@@ -283,13 +297,8 @@ class eventDialog extends Component {
         onClose={onClose}
         aria-labelledby="dialog-title"
       >
-        <DialogContent
-          className={classes.dialogContent}
-        >
-          {this.renderStepper()}
-          {steps[activeStep].component()}
-        </DialogContent>
-        {this.renderDialogActions()}
+       {this.renderDialogContent()}
+       {this.renderDialogActions()}
       </Dialog>
     );
     return dialog;

@@ -1,27 +1,9 @@
 # gratis-webapp
 React web application for Gratis.
 
-# Contribution Guidelines **TODO**
-
-## The DOs
-
-* [Fork](https://help.github.com/articles/fork-a-repo/) this repository to submit pull requests.
-* Submit pull requests to the "dev-master" branch. The "master" branch is used for stable releases.
-
-## The DONTs
-
-* Push directly to a branch. All merges must be done through pull requests.
-* Submit pull requests to the "master" branch. The "master" branch should only be updated by merging it with the "dev-master" branch.
-
 # Setup
 
-## Installation
-
-Make sure you have the latest versions of [Node.js and NPM](https://www.npmjs.com/get-npm), then install all NPM package dependencies by running:
-
-### `npm install`
-
-## Environment Variables
+## Adding Your Firebase Credentials
 
 This project makes use of [environment variables](https://facebook.github.io/create-react-app/docs/adding-custom-environment-variables) to store confidential information.
 
@@ -29,7 +11,25 @@ This project makes use of [environment variables](https://facebook.github.io/cre
 
 ### `cp sample.env .env`
 
-2. Finish the variable definitions in the newly created ".env" file.
+2. Finish the variable definitions in the newly created ".env" file. Most of the information needed can be found under your project's settings.
+
+## Using Your Firebase Project for Functions
+
+In order to use Functions, you must specify which project you want to use.
+
+1. Find out what projects are available to use.
+
+### `firebase use`
+
+2. Tell Firebase what project to use.
+
+### `firebase use [alias_or_project-id]`
+
+## Installation
+
+Make sure you have the latest versions of [Node.js and NPM](https://www.npmjs.com/get-npm), then install all NPM package dependencies by running:
+
+### `npm install`
 
 # Usage
 
