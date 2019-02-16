@@ -40,22 +40,12 @@ export const addEventToUser = (uid, event) => {
     // Add the event document,
     transaction
       .get(userDocRef)
-      .then((userDoc) => {
-        const userEventIDs = userDoc.get('eventIDs');
-
-        if (userEventIDs) {
-          transaction
-            .set(eventsRef, event)
-            .update(userDocRef, {
-              eventIDs: firebase.firestore.FieldValue.arrayUnion(eventsRef.id),
-            });
-        } else {
-          transaction
-            .set(eventsRef, event)
-            .set(userDocRef, {
-              eventIDs: [eventsRef.id],
-            });
-        }
+      .then(() => {
+        transaction
+          .set(eventsRef, event)
+          .update(userDocRef, {
+            eventIDs: firebase.firestore.FieldValue.arrayUnion(eventsRef.id),
+          });
       })
   ));
 };
