@@ -9,10 +9,10 @@ const rootReducer = (state = initialState, action) => {
     default:
       return state;
   }
-}
+};
 
 export default combineReducers({
   rootReducer,
   userReducer,
-  eventsReducer
+  eventsReducer,
 });

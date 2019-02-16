@@ -1,4 +1,4 @@
-const styles = theme => ({
+const styles = {
   root: {
     display: 'flex',
     flexFlow: 'column nowrap',
@@ -7,19 +7,17 @@ const styles = theme => ({
     overflow: 'hidden',
     width: '100vw',
     height: '100vh',
-    margin: 0,
-    padding: 0,
-    fontFamily: 'Arial, sans-serif',
-    zIndex: -1
   },
   content: {
     display: 'flex',
     flex: 'auto',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
   },
   footer: {
-    flex: 'none'
-  }
-});
+    flex: 'none',
+  },
+};
 
 export default styles;

@@ -1,131 +1,178 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import {
   Switch,
   Route,
   Redirect,
   NavLink,
-  withRouter
+  withRouter,
 } from 'react-router-dom';
-import { withStyles} from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu'
+import {
+  object,
+  shape,
+  string,
+  func,
+} from 'prop-types';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Menu from '@material-ui/core/Menu';
 import IconButton from '@material-ui/core/IconButton';
-import Button from '@material-ui/core/Button';
-import Drawer from '@material-ui/core/Drawer';
-import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import { auth, firestore } from '../../modules/firebase';
-import { eventsActionTypes } from '../../modules/redux/reducers/events';
+import Avatar from '@material-ui/core/Avatar';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import { withStyles } from '@material-ui/core/styles';
+import MenuIcon from '@material-ui/icons/Menu';
+import SettingsIcon from '@material-ui/icons/Settings';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+
 import EventsLayout from './event/Layout';
 import AnalyticsLayout from './analytics/Layout';
 import ProfileLayout from './profile/Layout';
-import SettingsLayout from './settings/Layout';
+import NavDrawer from './NavDrawer';
 import logo from './Logo-h500px.png';
 import styles from './Layout.styles';
-import { userActionTypes } from '../../modules/redux/reducers/user';
 
-const routes = [
-  { name: 'Events', path: '/events' },
-  { name: 'Analytics', path: '/analytics' },
-  { name: 'Profile', path: '/profile' },
-  { name: 'Settings', path: '/settings' }
-  // { name: 'Analytics}, path: '/analytics' }
-];
-
+/** Container seen by authenticated users. */
 class UserLayout extends Component {
+  static propTypes = {
+    history: object.isRequired,
+    classes: shape({
+      container: string,
+      layout: string,
+      appBar: string,
+      grow: string,
+      logo: string,
+      menuButton: string,
+    }).isRequired,
+    user: object.isRequired,
+    events: object.isRequired,
+    signOut: func.isRequired,
+  }
+
   state = {
-    showDrawer: false
-  };
+    showDrawer: false,
+    anchorEl: null,
+    routes: [
+      { name: 'Events', path: '/events' },
+      { name: 'Analytics', path: '/analytics' },
+    ],
+  }
 
   handlers = {
-    signOut: () => {
-      auth.doSignOut()
-        .then(() => {
-          this.props.deleteUser();
-          this.props.deleteEvents();
-        });
+    handleChange: key => value => this.setState({ [key]: value }),
+    toggleDrawer: () => {
+      this.setState(state => ({ showDrawer: !state.showDrawer }));
     },
-    toggleDrawer: () => this.setState((state, props) => ({ showDrawer: !state.showDrawer }))
   }
 
-  componentDidMount() {
-    const {
-      user,
-      setEvents
-    } = this.props;
-
-    /*
-    firestore.getEventsOfUID(user.uid)
-      .onSnapshot((snapshot) => {
-        setEvents(snapshot.data())
-    });
-    */
+  /** Make sure that when leaving, the path resets to "/". */
+  componentWillUnmount() {
+    const { history } = this.props;
+    history.replace('/');
   }
 
-  renderDrawer() {
+  renderAppBar() {
     const { classes } = this.props;
+    const { anchorEl } = this.state;
     const {
-      signOut,
-      toggleDrawer
+      handleChange,
+      toggleDrawer,
     } = this.handlers;
-    const links = routes.map(route => (
-      <NavLink
-        activeClassName="ActiveNavItem"
-        className="NavItem"
-        key={route.path}
-        to={route.path}
-        replace
-      > <Button variant="text" className="NavText"> {route.name} </Button>
-      </NavLink>
-    ));
+
     return (
-      <Drawer
-        anchor="left"
-        open={this.state.showDrawer}
-        onClose={toggleDrawer}
-      >
-        <img
-          alt="logo"
-          src={logo}
-          className={classes.logo}
-        />
-        <Button
-          className="SignOutButton"
-          variant="text"
-          onClick={signOut}
-        > Sign Out
-        </Button>
-        {links}
-      </Drawer>
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton
+            aria-label="Menu"
+            onClick={toggleDrawer}
+          >
+            <MenuIcon />
+          </IconButton>
+          <div className={classes.grow} />
+          <img
+            className={classes.logo}
+            src={logo}
+            alt="Gratis Logo"
+          />
+          <div className={classes.grow} />
+          <IconButton
+            aria-owns={anchorEl ? 'profile-menu' : undefined}
+            aria-haspopup="true"
+            onClick={event => handleChange('anchorEl')(event.currentTarget)}
+          >
+            <AccountCircleIcon />
+          </IconButton>
+          {this.renderProfileMenu()}
+        </Toolbar>
+      </AppBar>
     );
   }
 
-  renderToolbar() {
-    const { toggleDrawer } = this.handlers;
+  renderProfileMenu() {
+    const { signOut } = this.props;
+    const { anchorEl } = this.state;
+    const { handleChange } = this.handlers;
 
     return (
-      <IconButton
-        aria-label="Menu"
-        onClick={toggleDrawer}
+      <Menu
+        id="profile-menu"
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => handleChange('anchorEl')(null)}
       >
-        <MenuIcon />
-      </IconButton>
-    )
+        <Card>
+          <CardHeader
+            avatar={
+              <Avatar aria-label="Profile Picture">P</Avatar>
+            }
+            action={(
+              <div>
+                <NavLink
+                  to="/profile"
+                  replace
+                >
+                  <IconButton>
+                    <SettingsIcon />
+                  </IconButton>
+                </NavLink>
+                <IconButton onClick={signOut}>
+                  <ExitToAppIcon />
+                </IconButton>
+              </div>
+            )}
+          />
+        </Card>
+      </Menu>
+    );
+  }
+
+  renderNavDrawer() {
+    const {
+      routes,
+      showDrawer,
+    } = this.state;
+
+    const props = {
+      routes,
+      showDrawer,
+      closeDrawer: () => this.handlers.handleChange('showDrawer')(false),
+    };
+    return (
+      <NavDrawer
+        {...props}
+      />
+    );
   }
 
   renderLayout() {
     const { user, events } = this.props;
+
     return (
       <Switch>
         <Route path="/events" render={() => <EventsLayout user={user} events={events} />} />
         <Route path="/analytics" render={() => <AnalyticsLayout user={user} events={events} />} />
-        <Route path="/profile" component={ProfileLayout} />
-        <Route path="/settings" component={SettingsLayout} />
-        <Redirect exact from="/" to="/events" />
+        <Route path="/profile" component={() => <ProfileLayout user={user} />} />
+        <Redirect to="/events" />
       </Switch>
     );
   }
@@ -135,11 +182,11 @@ class UserLayout extends Component {
 
     return (
       <div className={classes.container}>
-        {this.renderDrawer()}
         <div className={classes.layout}>
-          <div className={classes.toolbar}>
-            {this.renderToolbar()}
+          <div className={classes.appBar}>
+            {this.renderAppBar()}
           </div>
+          {this.renderNavDrawer()}
           {this.renderLayout()}
         </div>
       </div>
@@ -147,25 +194,6 @@ class UserLayout extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => ({
-  deleteUser: () => dispatch({ type: userActionTypes.SET_USER, user: null }),
-  setEvents: (events) => dispatch({ type: eventsActionTypes.SET_EVENTS, events })
-});
-
-UserLayout.propTypes = {
-  handlers: PropTypes.objectOf(PropTypes.func)
-};
-UserLayout.defaultProps = {
-  events: [],
-  handlers: { }
-};
-
 export default withRouter(
-  connect(
-    null,
-    mapDispatchToProps
-  )(withStyles(
-    styles,
-    { withTheme: true }
-  )(UserLayout))
+  withStyles(styles)(UserLayout),
 );
