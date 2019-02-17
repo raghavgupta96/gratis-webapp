@@ -3,7 +3,6 @@ import {
   shape,
   string,
   func,
-  object,
 } from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 

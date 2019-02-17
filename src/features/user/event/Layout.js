@@ -64,6 +64,7 @@ class EventsLayout extends Component {
             endDate: new FromMillis(moment(event.endDate).valueOf()),
             eventOf: uid,
             imagePath: snapshot.ref.fullPath,
+            code: (Math.floor(Math.random() * 10000) + 1000).toString(),
           };
           firestore
             .addEventToUser(uid, doc)
@@ -186,6 +187,7 @@ class EventsLayout extends Component {
       <div className={classes.layout}>
         <div className={classes.content}>
           {this.renderEventCards()}
+          <div className={classes.fade} />
           {showAddEventDialog
             ? this.renderAddEventDialog()
             : null}

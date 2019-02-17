@@ -43,8 +43,8 @@ class eventDialog extends Component {
       eventOf: '',
       tags: [],
       allergies: [],
-      imagePath: '',
       file: null,
+      filepath: '',
     },
   }
 
@@ -79,13 +79,16 @@ class eventDialog extends Component {
       });
     },
     handleEventFileChange: (file, filepath) => {
-      this.setState(state => ({
-        event: {
-          ...state.event,
-          file,
-          filepath,
-        },
-      }));
+      if (file && filepath) {
+        this.setState(state => ({
+          event: {
+            ...state.event,
+            file,
+            filepath,
+          },
+          disableNext: false,
+        }));
+      }
     },
     /** Sets current step to the next step. */
     handleNext: () => {
@@ -148,7 +151,7 @@ class eventDialog extends Component {
         disableNext = false;
         break;
       case 'Images':
-        disableNext = event.file === null;
+        disableNext = event.filepath === '';
         break;
       default:
     }
