@@ -61,6 +61,15 @@ export const updateEvent = (eventID, event) => (
 );
 
 /**
+ * Updates a user's doc.
+ * @returns Promise containing void.
+ * @param {string} uid
+ */
+export const updateUser = (uid, user) =>  {
+  db.collection(rootCollections.Users).doc(uid).update(user);
+};
+
+/**
  * A transaction that deletes an event and updates the event's of a user.
  * @returns Promise returned by updateFunction.
  * @param {string} eventID
