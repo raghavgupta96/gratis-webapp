@@ -32,7 +32,6 @@ class EventCard extends Component {
   }
 
   state = {
-    showMenu: false,
     anchorEl: null,
   }
 
@@ -89,7 +88,7 @@ class EventCard extends Component {
         />
         <CardContent>
           <Typography component="p">
-            Code: 
+            Code:
             {event.code}
           </Typography>
         </CardContent>
