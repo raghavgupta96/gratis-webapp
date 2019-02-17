@@ -40,22 +40,12 @@ export const addEventToUser = (uid, event) => {
     // Add the event document,
     transaction
       .get(userDocRef)
-      .then((userDoc) => {
-        const userEventIDs = userDoc.get('eventIDs');
-
-        if (userEventIDs) {
-          transaction
-            .set(eventsRef, event)
-            .update(userDocRef, {
-              eventIDs: firebase.firestore.FieldValue.arrayUnion(eventsRef.id),
-            });
-        } else {
-          transaction
-            .set(eventsRef, event)
-            .set(userDocRef, {
-              eventIDs: [eventsRef.id],
-            });
-        }
+      .then(() => {
+        transaction
+          .set(eventsRef, event)
+          .update(userDocRef, {
+            eventIDs: firebase.firestore.FieldValue.arrayUnion(eventsRef.id),
+          });
       })
   ));
 };
@@ -69,6 +59,15 @@ export const addEventToUser = (uid, event) => {
 export const updateEvent = (eventID, event) => (
   db.collection(rootCollections.Events).doc(eventID).update(event)
 );
+
+/**
+ * Updates a user's doc.
+ * @returns Promise containing void.
+ * @param {string} uid
+ */
+export const updateUser = (uid, user) =>  {
+  db.collection(rootCollections.Users).doc(uid).update(user);
+};
 
 /**
  * A transaction that deletes an event and updates the event's of a user.

@@ -165,7 +165,10 @@ class UserLayout extends Component {
   }
 
   renderLayout() {
-    const { user, events } = this.props;
+    const {
+      user,
+      events,
+    } = this.props;
 
     return (
       <Switch>

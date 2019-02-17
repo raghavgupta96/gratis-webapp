@@ -17,6 +17,7 @@ import {
   firestore,
   storage,
 } from './modules/firebase';
+import SetupAccountLayout from './features/setup-account/Layout';
 import UserLayout from './features/user/Layout';
 import VisitorLayout from './features/visitor/Layout';
 import styles from './App.styles';
@@ -159,6 +160,15 @@ class App extends Component {
       error,
     } = this.state;
 
+    // Define the SetupAccount container.
+    const renderSetupAccountLayout = () => {
+      const props = {
+        user,
+      };
+
+      return <SetupAccountLayout {...props} />;
+    };
+
     // Define the UserLayout container.
     const renderUserLayout = () => {
       const props = {
@@ -178,9 +188,22 @@ class App extends Component {
       return <VisitorLayout {...props} />;
     };
 
-    return user.uid
-      ? renderUserLayout()
-      : renderVisitorLayout();
+    const shouldSetupAccount = (
+      user.name === ''
+      || user.area === ''
+      || user.cuisine === ''
+      || user.address === ''
+      || user.operationalHours === ''
+    );
+
+    let render = null;
+    if (user.uid) {
+      render = shouldSetupAccount ? renderSetupAccountLayout : renderUserLayout;
+    } else {
+      render = renderVisitorLayout;
+    }
+
+    return render();
   }
 
   /** Renders App. */

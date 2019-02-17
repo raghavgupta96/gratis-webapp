@@ -120,7 +120,7 @@ class eventDialog extends Component {
     }
   }
 
- /**
+  /**
    * Helper function that returns true or false based on step.
    * @returns {boolean}
    * @param {int} step
@@ -208,7 +208,7 @@ class eventDialog extends Component {
     const { classes } = this.props;
     const {
       activeStep,
-      steps
+      steps,
     } = this.state;
 
     return (
