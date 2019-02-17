@@ -14,6 +14,8 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { withStyles } from '@material-ui/core/styles';
 
 import styles from './Card.styles';
@@ -67,8 +69,8 @@ class EventCard extends Component {
           open={Boolean(anchorEl)}
           onClose={() => handleChange('anchorEl')(null)}
         >
-          <MenuItem onClick={() => editEvent()}>Edit</MenuItem>
-          <MenuItem onClick={() => deleteEvent()}>Delete</MenuItem>
+          <MenuItem onClick={() => editEvent()}><EditIcon /></MenuItem>
+          <MenuItem onClick={() => deleteEvent()}><DeleteIcon /></MenuItem>
         </Menu>
       </div>
     );
@@ -87,7 +89,7 @@ class EventCard extends Component {
         />
         <CardContent>
           <Typography component="p">
-            Code:
+            Code: 
             {event.code}
           </Typography>
         </CardContent>
