@@ -60,6 +60,11 @@ const styles = {
       color: 'red',
     },
   },
+  image: {
+    width: '100%',
+    height: 'auto',
+    position: 'absolute',
+  },
 };
 
 export default styles;

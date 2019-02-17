@@ -78,6 +78,15 @@ class eventDialog extends Component {
         };
       });
     },
+    handleEventFileChange: (file, filepath) => {
+      this.setState(state => ({
+        event: {
+          ...state.event,
+          file,
+          filepath,
+        },
+      }));
+    },
     /** Sets current step to the next step. */
     handleNext: () => {
       const {
@@ -173,15 +182,15 @@ class eventDialog extends Component {
   }
 
   renderImageForm() {
-    const { event } = this.state;
+    const { filepath } = this.state.event;
     const {
-      handleEventChange,
+      handleEventFileChange,
       deleteImage,
     } = this.handlers;
 
     const props = {
-      imageURLs: event.imageURLs,
-      fileHandler: handleEventChange('file'),
+      fileHandler: (file, path) => handleEventFileChange(file, path),
+      imagePreviewUrl: filepath,
       deleteImage,
     };
     return <ImageForm {...props} />;
@@ -244,13 +253,13 @@ class eventDialog extends Component {
           disabled={activeStep !== 0}
           onClick={onClose}
         >
-        Cancel
+          Cancel
         </Button>
       ) : (
         <Button
           onClick={handleBack}
         >
-        Back
+          Back
         </Button>
       );
     const nextButton = activeStep === steps.length - 1
@@ -261,18 +270,19 @@ class eventDialog extends Component {
             const doc = { ...event };
             const { file } = doc;
             delete doc.file;
+            delete doc.filepath;
             submit(doc, file);
             onClose();
           }}
         >
-        Finish
+          Finish
         </Button>
       ) : (
         <Button
           disabled={disableNext}
           onClick={handleNext}
         >
-        Next
+          Next
         </Button>
       );
     return (
@@ -297,8 +307,8 @@ class eventDialog extends Component {
         onClose={onClose}
         aria-labelledby="dialog-title"
       >
-       {this.renderDialogContent()}
-       {this.renderDialogActions()}
+        {this.renderDialogContent()}
+        {this.renderDialogActions()}
       </Dialog>
     );
     return dialog;
