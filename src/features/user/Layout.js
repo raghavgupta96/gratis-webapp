@@ -21,7 +21,6 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import { withStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
-import SettingsIcon from '@material-ui/icons/Settings';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
@@ -125,23 +124,18 @@ class UserLayout extends Component {
       >
         <Card>
           <CardHeader
-            avatar={
-              <Avatar aria-label="Profile Picture">{user.name[0].toUpperCase()}</Avatar>
-            }
+            avatar={(
+              <NavLink
+                to="/profile"
+                replace
+              >
+                <Avatar aria-label="Profile Picture">{user.name[0].toUpperCase()}</Avatar>
+              </NavLink>
+            )}
             action={(
-              <div>
-                <NavLink
-                  to="/profile"
-                  replace
-                >
-                  <IconButton>
-                    <SettingsIcon />
-                  </IconButton>
-                </NavLink>
-                <IconButton onClick={signOut}>
-                  <ExitToAppIcon />
-                </IconButton>
-              </div>
+              <IconButton onClick={signOut}>
+                <ExitToAppIcon />
+              </IconButton>
             )}
           />
         </Card>
