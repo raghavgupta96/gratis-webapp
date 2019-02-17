@@ -97,7 +97,4 @@ class EventCard extends Component {
   }
 }
 
-export default withStyles(
-  styles,
-  { withTheme: true },
-)(EventCard);
+export default withStyles(styles)(EventCard);

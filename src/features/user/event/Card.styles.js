@@ -1,4 +1,4 @@
-const styles = theme => ({
+const styles = {
   card: {
     flex: 'auto',
     margin: '32px',
@@ -8,6 +8,6 @@ const styles = theme => ({
     width: '320px',
     height: '320px',
   },
-});
+};
 
 export default styles;
