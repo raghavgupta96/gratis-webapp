@@ -109,7 +109,10 @@ class UserLayout extends Component {
   }
 
   renderProfileMenu() {
-    const { signOut } = this.props;
+    const {
+      signOut,
+      user,
+    } = this.props;
     const { anchorEl } = this.state;
     const { handleChange } = this.handlers;
 
@@ -123,7 +126,7 @@ class UserLayout extends Component {
         <Card>
           <CardHeader
             avatar={
-              <Avatar aria-label="Profile Picture">P</Avatar>
+              <Avatar aria-label="Profile Picture">{user.name[0].toUpperCase()}</Avatar>
             }
             action={(
               <div>
