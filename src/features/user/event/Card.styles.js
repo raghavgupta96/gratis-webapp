@@ -1,5 +1,6 @@
 const styles = theme => ({
   card: {
+    flex: 'auto',
     margin: '32px',
     maxWidth: '256px',
   },
