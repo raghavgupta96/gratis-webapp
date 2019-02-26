@@ -52,7 +52,7 @@ const imageForm = (props) => {
             }
           }}
         />
-        {imagePreviewUrl ? <img alt="Event" className={classes.image} src={imagePreviewUrl} /> : null}
+        {imagePreviewUrl ? <img alt="Event" className={classes.image} src={imagePreviewUrl} accept="image/*" /> : null}
         <label htmlFor="file">
           Upload Pictures Here!
         </label>
