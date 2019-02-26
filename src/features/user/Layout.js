@@ -12,8 +12,11 @@ import {
   string,
   func,
 } from 'prop-types';
+import Hidden from '@material-ui/core/Hidden';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import Menu from '@material-ui/core/Menu';
 import IconButton from '@material-ui/core/IconButton';
 import Avatar from '@material-ui/core/Avatar';
@@ -21,7 +24,6 @@ import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import { withStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
-import SettingsIcon from '@material-ui/icons/Settings';
 import AccountCircleIcon from '@material-ui/icons/AccountCircle';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
@@ -29,7 +31,7 @@ import EventsLayout from './event/Layout';
 import AnalyticsLayout from './analytics/Layout';
 import ProfileLayout from './profile/Layout';
 import NavDrawer from './NavDrawer';
-import logo from './Logo-h500px.png';
+import whiteLogo from './Logo-h500px-white.png';
 import styles from './Layout.styles';
 
 /** Container seen by authenticated users. */
@@ -52,6 +54,7 @@ class UserLayout extends Component {
   state = {
     showDrawer: false,
     anchorEl: null,
+    tabIndex: 0,
     routes: [
       { name: 'Events', path: '/events' },
       { name: 'Analytics', path: '/analytics' },
@@ -73,25 +76,29 @@ class UserLayout extends Component {
 
   renderAppBar() {
     const { classes } = this.props;
-    const { anchorEl } = this.state;
+    const {
+      anchorEl,
+    } = this.state;
     const {
       handleChange,
       toggleDrawer,
     } = this.handlers;
 
     return (
-      <AppBar position="static">
+      <AppBar className={classes.appBar} position="static">
         <Toolbar>
-          <IconButton
-            aria-label="Menu"
-            onClick={toggleDrawer}
-          >
-            <MenuIcon />
-          </IconButton>
-          <div className={classes.grow} />
+          <Hidden smDown>
+            <IconButton
+              aria-label="Menu"
+              onClick={toggleDrawer}
+            >
+              <MenuIcon />
+            </IconButton>
+            <div className={classes.grow} />
+          </Hidden>
           <img
             className={classes.logo}
-            src={logo}
+            src={whiteLogo}
             alt="Gratis Logo"
           />
           <div className={classes.grow} />
@@ -104,12 +111,16 @@ class UserLayout extends Component {
           </IconButton>
           {this.renderProfileMenu()}
         </Toolbar>
+        {this.renderTabs()}
       </AppBar>
     );
   }
 
   renderProfileMenu() {
-    const { signOut } = this.props;
+    const {
+      signOut,
+      user,
+    } = this.props;
     const { anchorEl } = this.state;
     const { handleChange } = this.handlers;
 
@@ -122,27 +133,55 @@ class UserLayout extends Component {
       >
         <Card>
           <CardHeader
-            avatar={
-              <Avatar aria-label="Profile Picture">P</Avatar>
-            }
+            avatar={(
+              <NavLink
+                to="/profile"
+                replace
+              >
+                <Avatar aria-label="Profile Picture">{user.name[0].toUpperCase()}</Avatar>
+              </NavLink>
+            )}
             action={(
-              <div>
-                <NavLink
-                  to="/profile"
-                  replace
-                >
-                  <IconButton>
-                    <SettingsIcon />
-                  </IconButton>
-                </NavLink>
-                <IconButton onClick={signOut}>
-                  <ExitToAppIcon />
-                </IconButton>
-              </div>
+              <IconButton onClick={signOut}>
+                <ExitToAppIcon />
+              </IconButton>
             )}
           />
         </Card>
       </Menu>
+    );
+  }
+
+  renderTabs() {
+    const {
+      history,
+    } = this.props;
+    const {
+      tabIndex,
+      routes,
+    } = this.state;
+    const {
+      handleChange,
+    } = this.handlers;
+
+    const tabs = routes.map(route => (
+      <Tab
+        label={route.name}
+        key={route.name}
+        onClick={() => history.replace(route.path)}
+      />
+    ));
+
+    return (
+      <Hidden mdUp>
+        <Tabs
+          value={tabIndex}
+          onChange={(_, value) => handleChange('tabIndex')(value)}
+          centered
+        >
+          {tabs}
+        </Tabs>
+      </Hidden>
     );
   }
 
@@ -155,6 +194,7 @@ class UserLayout extends Component {
     const props = {
       routes,
       showDrawer,
+      variant: 'permanent',
       closeDrawer: () => this.handlers.handleChange('showDrawer')(false),
     };
     return (
@@ -186,9 +226,7 @@ class UserLayout extends Component {
     return (
       <div className={classes.container}>
         <div className={classes.layout}>
-          <div className={classes.appBar}>
-            {this.renderAppBar()}
-          </div>
+          {this.renderAppBar()}
           {this.renderNavDrawer()}
           {this.renderLayout()}
         </div>

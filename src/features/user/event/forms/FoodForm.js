@@ -116,8 +116,14 @@ const foodForm = (props) => {
 
   return (
     <form className={classes.form}>
-      {renderTags()}
-      {renderAllergies()}
+      <div>
+        Event tags:
+        {renderTags()}
+      </div>
+      <div>
+        Allergies:
+        {renderAllergies()}
+      </div>
     </form>
   );
 };

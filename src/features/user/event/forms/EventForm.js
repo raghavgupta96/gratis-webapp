@@ -59,7 +59,13 @@ const eventForm = (props) => {
           label="Start Date & Time"
           type="datetime-local"
           value={event.startDate}
-          onChange={e => startDateHandler(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value > event.endDate && event.endDate !== '') {
+              window.alert("The event's start time must come before it's end");
+            } else {
+              startDateHandler(e.target.value);
+            }
+          }}
           InputLabelProps={{ shrink: true }}
         />
         <TextField
@@ -67,7 +73,13 @@ const eventForm = (props) => {
           label="End Date & Time"
           type="datetime-local"
           value={event.endDate}
-          onChange={e => endDateHandler(e.target.value)}
+          onChange={(e) => {
+            if (e.target.value < event.startDate) {
+              window.alert("The event's end time must come after it's start time.");
+            } else {
+              endDateHandler(e.target.value);
+            }
+          }}
           InputLabelProps={{ shrink: true }}
         />
       </div>

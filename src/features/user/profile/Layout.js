@@ -7,8 +7,6 @@ import {
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
-import Fab from '@material-ui/core/Fab';
-import EditIcon from '@material-ui/icons/Edit';
 
 import styles from './Layout.styles';
 
@@ -26,21 +24,17 @@ class ProfileLayout extends Component {
       cuisine: '',
       area: '',
     },
-    edit: {
-      name: false,
-    },
   }
 
   handlers = {
-    handleEditChange: key => (value) => {
+    handleUserChange: key => (value) => {
       this.setState(state => ({
-        ...state,
-        edit:{
-          ...this.state.edit,
-          [key]: value
-        }
-      }))
-    }
+        user: {
+          ...state.user,
+          [key]: value,
+        },
+      }));
+    },
   }
 
   componentDidMount() {
@@ -51,61 +45,36 @@ class ProfileLayout extends Component {
   renderProfile() {
     const {
       classes,
-      user
     } = this.props;
-    /*
     const {
-      handleEditChange
-    } = this.handlers;
-    */
-    const {
-      edit
+      user,
     } = this.state;
+    const {
+      handleUserChange,
+    } = this.handlers;
 
     return (
       <div className={classes.profile}>
-        {user.name || !edit.name
-          ? <Typography></Typography>
-          : (<TextField
-               value={this.state.user.name}
-             />)}
+        <Typography variant="h2">{user.name}</Typography>
+        <Typography variant="">
+          Area:
+          {user.area}
+        </Typography>
+        <Typography variant="">
+          Cuisine:
+          {user.cuisine}
+        </Typography>
       </div>
-    );
-  }
-
-  renderEdit() {
-    const {
-      user
-    } = this.props;
-    return (
-      <TextField
-        label="Name"
-        value={user.name}
-      />
     );
   }
 
   render() {
     const { classes } = this.props;
-    /*
-    const {
-      user,
-      edit
-    } = this.state;
-    */
 
     return (
       <div className={classes.layout}>
         <div className={classes.content}>
           {this.renderProfile()}
-          <Fab
-            className={classes.fab}
-            color="primary"
-            aria-label="Add"
-          >
-            <EditIcon />
-          </Fab>
-
         </div>
       </div>
     );

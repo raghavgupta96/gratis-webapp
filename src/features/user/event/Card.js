@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import {
   object,
   shape,
@@ -6,72 +6,95 @@ import {
   func,
 } from 'prop-types';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@material-ui/core/IconButton';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { withStyles } from '@material-ui/core/styles';
 
 import styles from './Card.styles';
 
-const propTypes = {
-  classes: shape({
-    card: string,
-    image: string,
-  }).isRequired,
-  event: object.isRequired,
-  deleteEvent: func.isRequired,
-  editEvent: func.isRequired,
-};
+class EventCard extends Component {
+  static propTypes = {
+    classes: shape({
+      card: string,
+      image: string,
+    }).isRequired,
+    event: object.isRequired,
+    deleteEvent: func.isRequired,
+    editEvent: func.isRequired,
+  }
 
-const eventCard = (props) => {
-  const {
-    classes,
-    event,
-    deleteEvent,
-    editEvent,
-  } = props;
+  state = {
+    anchorEl: null,
+  }
 
-  return (
-    <Card className={classes.card}>
-      <CardHeader
-        title={event.title}
-        subheader={event.startDate.toDate().toDateString()}
-      />
-      <CardMedia
-        className={classes.image}
-        image={event.imagePath}
-        title="Event Image"
-      />
-      <CardContent>
-        <Typography component="p">
-          {event.description}
-        </Typography>
-      </CardContent>
-      <CardActions>
-        <Button>
-        Details
-        </Button>
-        <Button
-          onClick={editEvent}
+  handlers = {
+    handleChange: key => value => this.setState({ [key]: value }),
+  }
+
+  render() {
+    const {
+      classes,
+      event,
+      deleteEvent,
+      editEvent,
+    } = this.props;
+    const {
+      anchorEl,
+    } = this.state;
+    const {
+      handleChange,
+    } = this.handlers;
+
+    const moreVertMenu = (
+      <div>
+        <IconButton
+          aria-owns={anchorEl ? 'card-menu' : undefined}
+          aria-haspopup="true"
+          onClick={e => handleChange('anchorEl')(e.currentTarget)}
         >
-        Edit
-        </Button>
-        <Button
-          onClick={deleteEvent}
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          id="card-menu"
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => handleChange('anchorEl')(null)}
         >
-        Delete
-        </Button>
-      </CardActions>
-    </Card>
-  );
-};
+          <MenuItem onClick={() => editEvent()}><EditIcon /></MenuItem>
+          <MenuItem onClick={() => deleteEvent()}><DeleteIcon /></MenuItem>
+        </Menu>
+      </div>
+    );
 
-eventCard.propTypes = propTypes;
+    return (
+      <Card className={classes.card}>
+        <CardHeader
+          title={event.title}
+          subheader={event.startDate.toDate().toDateString()}
+          action={moreVertMenu}
+        />
+        <CardMedia
+          className={classes.image}
+          image={event.imagePath}
+          title="Event Image"
+        />
+        <CardContent>
+          <Typography component="p">
+            Code:
+            {event.code}
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+}
 
-export default withStyles(
-  styles,
-  { withTheme: true },
-)(eventCard);
+export default withStyles(styles)(EventCard);
