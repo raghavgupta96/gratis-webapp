@@ -31,7 +31,6 @@ import EventsLayout from './event/Layout';
 import AnalyticsLayout from './analytics/Layout';
 import ProfileLayout from './profile/Layout';
 import NavDrawer from './NavDrawer';
-import logo from './Logo-h500px.png';
 import whiteLogo from './Logo-h500px-white.png';
 import styles from './Layout.styles';
 
