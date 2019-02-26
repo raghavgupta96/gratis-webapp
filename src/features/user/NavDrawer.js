@@ -14,6 +14,7 @@ import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
 import { withStyles } from '@material-ui/core/styles';
 
+import logo from './Logo-h500px.png';
 import styles from './NavDrawer.styles';
 
 const propTypes = {
@@ -62,6 +63,7 @@ const navDrawer = (props) => {
       open={showDrawer}
       onClose={closeDrawer}
     >
+      <img className={classes.logo} alt="Gratis Logo" src={logo} />
       {links}
     </Drawer>
   );

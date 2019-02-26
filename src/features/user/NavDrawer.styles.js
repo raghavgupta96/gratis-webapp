@@ -8,6 +8,11 @@ const styles = theme => ({
     color: theme.palette.secondary.main,
     backgroundColor: theme.palette.primary.main,
   },
+  logo: {
+    width: '256px',
+    height: 'auto',
+    margin: '16px',
+  },
 });
 
 export default styles;
