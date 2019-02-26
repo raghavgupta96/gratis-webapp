@@ -38,8 +38,10 @@ class eventDialog extends Component {
     event: {
       title: '',
       description: '',
-      startDate: moment().format('YYYY-MM-DDTHH:mm'),
-      endDate: moment().format('YYYY-MM-DDTHH:mm'),
+      startDate: '',
+      endDate: '',
+      // startDate: moment().format('YYYY-MM-DDTHH:mm'),
+      // endDate: moment().format('YYYY-MM-DDTHH:mm'),
       eventOf: '',
       tags: [],
       allergies: [],
