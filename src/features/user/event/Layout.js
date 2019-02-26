@@ -7,7 +7,11 @@ import {
 } from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Fab from '@material-ui/core/Fab';
+import Button from '@material-ui/core/Button';
 import AddIcon from '@material-ui/icons/Add';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
 
 import {
   firebase,
@@ -34,7 +38,9 @@ class EventsLayout extends Component {
   state = {
     showAddEventDialog: false,
     showEditEventDialog: false,
+    showConfirmDeleteDialog: false,
     editEventID: '',
+    deleteEventID: '',
   };
 
   handlers = {
@@ -106,9 +112,11 @@ class EventsLayout extends Component {
 
   renderEventCards() {
     const {
-      user,
       events,
     } = this.props;
+    const {
+      handleChange,
+    } = this.handlers;
 
     const eventCardList = [];
     Object.keys(events).forEach((key) => {
@@ -116,8 +124,8 @@ class EventsLayout extends Component {
         key,
         event: events[key],
         deleteEvent: () => {
-          storage.deleteImage(events[key].storagePath);
-          firestore.deleteEventOfUser(key, user.uid);
+          handleChange('deleteEventID')(key);
+          handleChange('showConfirmDeleteDialog')(true);
         },
         editEvent: () => {
           this.setState({
@@ -129,6 +137,51 @@ class EventsLayout extends Component {
       eventCardList.push(<EventCard {...props} />);
     });
     return eventCardList;
+  }
+
+  renderConfirmDeleteDialog() {
+    const {
+      user,
+      events,
+    } = this.props;
+    const {
+      showConfirmDeleteDialog,
+      deleteEventID,
+    } = this.state;
+    const {
+      handleChange,
+    } = this.handlers;
+
+    return (
+      <Dialog
+        open={showConfirmDeleteDialog}
+        onClose={() => handleChange('showConfirmDeleteDialog')(false)}
+        aria-labelledby="dialog-title"
+      >
+        <DialogContent>
+          Are you sure you want to delete &quot;
+          {events[deleteEventID].title}
+          &quot;?
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              storage.deleteImage(events[deleteEventID].storagePath);
+              firestore.deleteEventOfUser(deleteEventID, user.uid);
+            }}
+          >
+          Yes, delete the event
+          </Button>
+          <Button
+            onClick={() => {
+              handleChange('showConfirmDeleteDialog')(false);
+            }}
+          >
+          Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
   }
 
   renderAddEventDialog() {
@@ -180,6 +233,7 @@ class EventsLayout extends Component {
     const {
       showAddEventDialog,
       showEditEventDialog,
+      showConfirmDeleteDialog,
     } = this.state;
     const { handleChange } = this.handlers;
 
@@ -193,6 +247,9 @@ class EventsLayout extends Component {
             : null}
           {showEditEventDialog
             ? this.renderEditEventDialog()
+            : null}
+          {showConfirmDeleteDialog
+            ? this.renderConfirmDeleteDialog()
             : null}
           <Fab
             className={classes.fab}
