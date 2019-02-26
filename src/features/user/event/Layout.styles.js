@@ -2,6 +2,7 @@ const styles = {
   layout: {
     width: '100%',
     height: '95%',
+    paddingBottom: '64px',
     overflowY: 'auto',
   },
   content: {
