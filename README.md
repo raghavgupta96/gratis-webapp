@@ -1,4 +1,4 @@
-# gratis-webapp
+# gratis-webapp v0.1.2
 React web application for Gratis.
 
 # Setup
